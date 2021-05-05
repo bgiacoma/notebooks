@@ -1,0 +1,226 @@
+#==============================================================================
+# Balsara magnetized shock tube test #1: GRHydro_InitData
+#==============================================================================
+
+#------------------------------------------------------------------------------
+# Cactus parameters:
+#------------------------------------------------------------------------------
+Cactus::cctk_run_title = "Balsara magnetized shock tube test #1"
+Cactus::cctk_full_warnings         = "yes"
+
+Cactus::terminate       = "time"
+Cactus::cctk_final_time = 0.4
+
+
+#------------------------------------------------------------------------------
+# Activate all necessary thorns:
+#------------------------------------------------------------------------------
+
+ActiveThorns = "Boundary CartGrid3D CoordBase Fortran InitBase IOUtil LocalReduce SymBase Time"
+ActiveThorns = "AEILocalInterp LocalInterp"
+ActiveThorns = "MoL Slab SpaceMask"
+ActiveThorns = "Carpet CarpetInterp CarpetIOASCII CarpetIOHDF5 CarpetIOScalar CarpetLib CarpetIOBasic CarpetReduce CarpetSlab LoopControl"
+ActiveThorns = "NaNChecker"
+ActiveThorns = "ADMbase ADMcoupling ADMmacros CoordGauge StaticConformal"
+ActiveThorns = "Constants TmunuBase HydroBase "
+ActiveThorns = "EOS_Omni"
+ActiveThorns = "GRHydro GRHydro_InitData"
+ActiveThorns = "HDF5"
+ActiveThorns = "SystemStatistics"
+
+#------------------------------------------------------------------------------
+# Diagnostic parameters:
+#------------------------------------------------------------------------------
+
+Carpet::storage_verbose   = "no"
+Carpet::verbose           = "no"
+Carpet::veryverbose       = "no"
+Carpet::grid_structure_filename = "carpet-grid-structure.asc"
+Carpet::grid_coordinates_filename = "carpet-grid-coordinates.asc"
+
+CarpetLib::output_bboxes  = "no"
+CarpetLib::print_memstats_every     = 1024
+CarpetLib::memstat_file    = "carpetlib-memory-statistics.asc"
+
+CarpetReduce::verbose    = "no"
+
+#------------------------------------------------------------------------------
+# Utility parameters:
+#------------------------------------------------------------------------------
+
+NaNChecker::check_every   =  1
+NaNChecker::check_vars = "
+            ADMBase::curv 
+            ADMBase::metric 
+            ADMBase::lapse 
+            ADMBase::shift 
+            HydroBase::Bvec
+            HydroBase::rho 
+            HydroBase::eps 
+            HydroBase::press 
+            HydroBase::vel
+            HydroBase::w_lorentz
+"
+NaNChecker::action_if_found   =  "terminate"
+
+
+#------------------------------------------------------------------------------
+# Run parameters:
+#------------------------------------------------------------------------------
+
+#------
+# Grid:
+#------
+
+Time::dtfac = 0.8
+
+#If you want to use a 2nd-order Runge-Kutta
+MoL::ODE_Method             = "rk2"
+MoL::MoL_Intermediate_Steps = 2
+
+#If you want to use a 4th-order Runge-Kutta
+#MoL::ODE_Method             = "rk4"
+#MoL::MoL_Intermediate_Steps = 4
+#MoL::MoL_Num_Scratch_Levels = 1
+
+CartGrid3D::type         = "coordbase"
+CartGrid3D::domain       = "full"
+CartGrid3D::avoid_origin = "no"
+
+CoordBase::domainsize       = "minmax"
+CoordBase::spacing          = "gridspacing"
+
+CoordBase::xmin = -0.5
+CoordBase::ymin = -0.025
+CoordBase::zmin = -0.025
+CoordBase::xmax =  0.5
+CoordBase::ymax =  0.025
+CoordBase::zmax =  0.025
+CoordBase::dx   =  0.0025  # dx or ncells_x
+CoordBase::dy   =  0.005  # dy or ncells_y
+CoordBase::dz   =  0.005  # dz or ncells_z
+
+Driver::ghost_size                  = 3
+GRHydro::GRHydro_stencil            = 3
+
+# General Carpet parameters:
+Carpet::domain_from_coordbase    = "yes"
+
+CarpetLib::poison_new_memory         = "yes"
+CarpetLib::poison_value              = 114
+
+#------
+# MODEL:
+#------
+
+HydroBase::initial_hydro                = "shocktube"
+HydroBase::initial_Bvec 		= "shocktube"
+GRHydro_InitData::shocktube_type        = "xshock"
+GRHydro_InitData::shock_case            = "Balsara1"
+
+
+ADMBase::metric_type             = "physical"
+ADMBase::initial_data            = "Cartesian Minkowski"
+ADMBase::initial_lapse           = "one"
+ADMBase::initial_shift           = "zero"
+ADMBase::initial_dtlapse         = "none"
+ADMBase::initial_dtshift         = "none"
+
+EOS_Omni::poly_K     = 100.0
+EOS_Omni::poly_gamma = 2.0
+EOS_Omni::gl_K       = 100.0
+EOS_Omni::gl_gamma   = 2.0
+GRHydro::initial_Gamma = 2.0
+
+#----------
+# Numerics:
+#----------
+HydroBase::timelevels            = 2
+SpaceMask::use_mask      = "yes"
+
+#-----------
+# Evolution:
+#-----------
+
+HydroBase::evolution_method      = "GRHydro"
+HydroBase::Bvec_evolution_method = "GRHydro"
+
+GRHydro::method_type               = "RSA FV"
+GRHydro::recon_method              = "tvd"
+GRHydro::tvd_limiter               = "vanleerMC2" #minmod
+GRHydro::recon_vars                = "primitive"
+GRHydro::riemann_solver            = "HLLE"
+GRHydro::bound                     = "flat"
+GRHydro::GRHydro_eos_type          = "General"
+GRHydro::GRHydro_eos_table         = "Ideal_Fluid"
+
+GRHydro::clean_divergence          = "yes"
+GRHydro::kap_dc                    = 1.0
+GRHydro::track_divB                = "yes"
+
+#------------------------------------------------------------------------------
+# Output:
+#------------------------------------------------------------------------------
+
+IO::out_dir = balsara1_1d_400  ##$parfile
+IO::out_fileinfo           = "none"
+
+IOBasic::outInfo_every = 1
+IOBasic::outInfo_reductions = "maximum"
+IOBasic::outInfo_vars  = "
+ Carpet::physical_time_per_hour
+ HydroBase::rho
+ HydroBase::press
+ SystemStatistics::maxrss_mb
+"
+
+IOASCII::out0D_every     = 200
+IOASCII::out0D_vars      = "
+ Carpet::timing
+"
+
+CarpetIOHDF5::out1D_every     = 10
+CarpetIOHDF5::out1D_vars      = "
+ GRHydro::Bcons
+ GRHydro::dens
+ GrHydro::divB
+ GRHydro::scon
+ GRHydro::tau
+ HydroBase::Bvec
+ HydroBase::eps
+ HydroBase::press
+ HydroBase::rho
+ HydroBase::vel
+ HydroBase::w_lorentz
+"
+
+CarpetIOHDF5::open_one_input_file_at_a_time  = "yes"
+
+CarpetIOHDF5::out2D_every                    = -1
+CarpetIOHDF5::out2D_xy                       = "yes"
+CarpetIOHDF5::out2D_xz                       = "no"
+CarpetIOHDF5::out2D_yz                       = "no"
+CarpetIOHDF5::out2D_vars      = "
+  GRHydro::Bcons
+  GRHydro::dens
+  GRHydro::divB
+  GRHydro::scon
+  GRHydro::tau
+  HydroBase::Bvec
+  HydroBase::eps
+  HydroBase::press
+  HydroBase::rho
+  HydroBase::vel
+  HydroBase::w_lorentz
+"
+
+CarpetIOHDF5::out3D_every = -1
+CarpetIOHDF5::out3D_vars  = "
+ GRHydro::divB
+ HydroBase::Bvec
+ HydroBase::eps
+ HydroBase::press
+ HydroBase::rho
+ HydroBase::vel
+ HydroBase::w_lorentz
+"

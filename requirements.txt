@@ -2,3 +2,4 @@ matplotlib
 numpy
 astropy
 imageio
+imageio-ffmpeg

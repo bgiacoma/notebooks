@@ -47,11 +47,6 @@ CarpetReduce::verbose    = "no"
 
 NaNChecker::check_every   =  1
 NaNChecker::check_vars = "
-            ADMBase::curv 
-            ADMBase::metric 
-            ADMBase::lapse 
-            ADMBase::shift 
-            HydroBase::Bvec
             HydroBase::rho 
             HydroBase::eps 
             HydroBase::press 
@@ -93,9 +88,9 @@ CoordBase::zmin = -0.025
 CoordBase::xmax =  0.5
 CoordBase::ymax =  0.025
 CoordBase::zmax =  0.025
-CoordBase::dx   =  0.0025  # dx or ncells_x
-CoordBase::dy   =  0.005  # dy or ncells_y
-CoordBase::dz   =  0.005  # dz or ncells_z
+CoordBase::dx   =  0.0025  
+CoordBase::dy   =  0.005  
+CoordBase::dz   =  0.005  
 
 CoordBase::boundary_size_x_lower        = 3
 CoordBase::boundary_size_y_lower        = 3
@@ -171,7 +166,6 @@ IOBasic::outInfo_vars  = "
  Carpet::physical_time_per_hour
  HydroBase::rho
  HydroBase::press
- SystemStatistics::maxrss_mb
 "
 
 IOASCII::out0D_every     = 200

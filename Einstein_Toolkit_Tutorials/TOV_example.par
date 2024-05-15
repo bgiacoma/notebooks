@@ -117,7 +117,7 @@ MoL::MoL_Num_Scratch_Levels = 1
 
 # check all physical variables for NaNs
 #  This can save you computing time, so it's not a bad idea to do this
-#  once in a whioe.
+#  once in a while.
 ActiveThorns = "NaNChecker"
 NaNChecker::check_every = 16384
 NaNChecker::action_if_found = "terminate" #"terminate", "just warn", "abort"
@@ -237,25 +237,21 @@ IOScalar::outScalar_vars     = "
  Carpet::timing{reductions='average'}
 "
 
-# 1D ASCII output. Disable for production runs!
-IOASCII::out1D_every        = -1
-IOASCII::one_file_per_group = yes
-IOASCII::output_symmetry_points = no
-IOASCII::out1D_vars         = "
+
+#HDF5 output
+CarpetIOHDF5::output_buffer_points = "no"
+
+# 1D HDF5 output
+CarpetIOHDF5::out1D_every = 1024
+CarpetIOHDF5::out1D_vars = "
  HydroBase::rho
- HydroBase::press
- HydroBase::eps
- HydroBase::vel
  ADMBase::lapse
- ADMBase::metric
- ADMBase::curv
+ ADMBase::shift
  ML_BSSN::ML_Ham
  ML_BSSN::ML_mom
 "
 
 # 2D HDF5 output
-CarpetIOHDF5::output_buffer_points = "no"
-
 CarpetIOHDF5::out2D_every = 2048
 CarpetIOHDF5::out2D_vars = "
  HydroBase::rho
@@ -264,7 +260,6 @@ CarpetIOHDF5::out2D_vars = "
  HydroBase::w_lorentz
  ADMBase::lapse
  ADMBase::shift
- ADMBase::metric
  ML_BSSN::ML_Ham
  ML_BSSN::ML_mom
  "
